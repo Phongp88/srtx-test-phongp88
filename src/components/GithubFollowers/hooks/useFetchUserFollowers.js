@@ -6,42 +6,45 @@ import {
   SAME_GITHUB_NAME_ERROR,
 } from "../../shared/const";
 
-const fetchAllPossibleFollowersFromUser = async (user) => {
-  let page = 1;
-  let allFollowers = [];
-  let hasNextPage = true;
-
-  while (hasNextPage) {
-    try {
-      const res = await fetch(
-        `https://api.github.com/users/${user}/followers?page=${page}&per_page=100`
-      );
-      const followers = await res.json();
-      if (followers.length === 0) {
-        hasNextPage = false;
-      } else {
-        allFollowers = [...allFollowers, ...followers];
-        page++;
-      }
-    } catch (error) {
-      throw new Error(`Failed to retrieve followers for user ${user}`);
-    }
-  }
-
-  return allFollowers;
-};
-
-const fetchUserDetails = async (user) => {
-  const res = await fetch(`https://api.github.com/users/${user}`);
-  return await res.json();
-};
-
 export const useFetchUserFollowers = () => {
   const [firstUser, setFirstUser] = useState(null);
   const [secondUser, setSecondUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [commonFollowerList, setCommonFollowerList] = useState([]);
   const [error, setError] = useState(DEFAULT_ERROR);
+
+  const fetchAllPossibleFollowersFromUser = async (user) => {
+    let page = 1;
+    let allFollowers = [];
+    let hasNextPage = true;
+
+    while (hasNextPage) {
+      try {
+        const res = await fetch(
+          `https://api.github.com/users/${user}/followers?page=${page}&per_page=100`
+        );
+        const followers = await res.json();
+        if (followers.length === 0) {
+          hasNextPage = false;
+        } else {
+          allFollowers = [...allFollowers, ...followers];
+          page++;
+        }
+      } catch (error) {
+        handleRetrySearch();
+        const errorMessage = `Failed to retrieve followers for user ${user}, please try again`;
+        setError({ isError: true, message: errorMessage });
+        throw new Error(errorMessage);
+      }
+    }
+
+    return allFollowers;
+  };
+
+  const fetchUserDetails = async (user) => {
+    const res = await fetch(`https://api.github.com/users/${user}`);
+    return await res.json();
+  };
 
   const handleRetrySearch = () => {
     setFirstUser(null);
@@ -83,13 +86,19 @@ export const useFetchUserFollowers = () => {
         setSecondUser(secondUserData);
         setCommonFollowerList(commonFollowers);
       } catch (errorMessage) {
-        setError({ isError: true, message: errorMessage });
+        setError({
+          isError: true,
+          message: "Failed to retrieve followers, please try again",
+        });
         handleRetrySearch();
       } finally {
         setLoading(false);
       }
     } else {
       setFirstUser({ login: user });
+      if (error.isError) {
+        setError(DEFAULT_ERROR);
+      }
     }
   };
 

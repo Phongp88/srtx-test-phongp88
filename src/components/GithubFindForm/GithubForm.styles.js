@@ -16,4 +16,7 @@ export const SubmitButton = styled(Button)`
 
 export const GithubSearchField = styled(TextField)`
   width: 300px;
+  > p {
+    height: 0;
+  }
 `;
