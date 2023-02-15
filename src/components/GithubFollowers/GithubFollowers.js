@@ -7,6 +7,7 @@ import GithubAvatar from "../GithubAvatar/GithubAvatar";
 import GithubFollowersList from "../GithubFollowersList/GithubFollowersList";
 import { AvatarContainer, FollowersContainer } from "./GithubFollowers.styles";
 import { useFetchUserFollowers } from "./hooks/useFetchUserFollowers";
+import { STRINGS } from "../shared/strings";
 
 const GithubFollowers = () => {
   const [gitUsername, setGitUsername] = useState("");
@@ -26,6 +27,8 @@ const GithubFollowers = () => {
     setGitUsername("");
   };
 
+  const githubInputText = firstUser ? STRINGS.SECOND_USER : STRINGS.FIRST_USER;
+
   if (loading) {
     return <>Loading...</>;
   }
@@ -38,6 +41,7 @@ const GithubFollowers = () => {
           setGitUsername={setGitUsername}
           handleFollowerSearch={handleFollowerSearch}
           error={error}
+          githubInputText={githubInputText}
         />
       )}
       {firstUser && secondUser && (

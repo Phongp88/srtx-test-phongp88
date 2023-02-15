@@ -4,7 +4,7 @@ import {
   DEFAULT_ERROR,
   EMPTY_FIELD_ERROR,
   SAME_GITHUB_NAME_ERROR,
-} from "../../const";
+} from "../../shared/const";
 
 export const useFetchUserFollowers = () => {
   const [firstUser, setFirstUser] = useState(null);

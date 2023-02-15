@@ -9,11 +9,12 @@ const GithubForm = ({
   setGitUsername,
   handleFollowerSearch,
   error,
+  githubInputText,
 }) => (
   <GitSearchForm onSubmit={handleFollowerSearch}>
     <GithubSearchField
       id="outlined-basic"
-      label="Enter github username"
+      label={githubInputText}
       variant="outlined"
       value={gitUsername}
       onChange={(e) => setGitUsername(e.target.value)}
