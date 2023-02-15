@@ -1,9 +1,10 @@
 import GithubFollowers from "@/components/GithubFollowers";
-const Home = () => {
+
+const App = () => {
   return (
     <>
       <GithubFollowers />
     </>
   );
 };
-export default Home;
+export default App;
