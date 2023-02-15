@@ -4,6 +4,8 @@ import {
   GithubSearchField,
 } from "./GithubForm.styles";
 
+import { STRINGS } from "../shared/strings";
+
 const GithubForm = ({
   gitUsername,
   setGitUsername,
@@ -22,7 +24,7 @@ const GithubForm = ({
       helperText={error.message}
     />
     <SubmitButton variant="contained" type="submit">
-      Search
+      {STRINGS.SEARCH}
     </SubmitButton>
   </GitSearchForm>
 );

@@ -36,7 +36,7 @@ const GithubFollowers = () => {
   const githubInputText = firstUser ? STRINGS.SECOND_USER : STRINGS.FIRST_USER;
 
   if (loading) {
-    return <>Loading...</>;
+    return <>{STRINGS.LOADING}</>;
   }
 
   return (
@@ -52,7 +52,7 @@ const GithubFollowers = () => {
       ) : (
         <CenterContainer>
           <Button variant="contained" onClick={() => handleRetrySearch()}>
-            Search Again
+            {STRINGS.SEARCH_AGAIN}
           </Button>
         </CenterContainer>
       )}
@@ -63,7 +63,8 @@ const GithubFollowers = () => {
             <GithubAvatar user={secondUser} />
           </AvatarContainer>
           <Typography>
-            Both users have {commonFollowerList.length} common followers!
+            {STRINGS.BOTH_USERS} {commonFollowerList.length}{" "}
+            {STRINGS.COMMON_FOLLOWERS}
           </Typography>
           {commonFollowerList.length > 0 && (
             <GithubFollowersList followers={commonFollowerList} />
