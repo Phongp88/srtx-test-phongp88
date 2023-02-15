@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import Avatar from "@mui/material/Avatar";
 
 export const AvatarCard = styled(Card)`
-  max-width: 300px;
+  width: 400px;
   display: flex;
   justify-content: center;
   align-content: center;

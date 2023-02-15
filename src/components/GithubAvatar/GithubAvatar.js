@@ -15,7 +15,7 @@ const GithubAvatar = ({ user }) => {
         <AvatarPictureContainer>
           <AvatarPicture alt="default avatar" src="assets/defaultPfp.png" />
         </AvatarPictureContainer>
-        <Typography variant="h3" component="div" textAlign={"center"}>
+        <Typography variant="h4" component="div" textAlign={"center"}>
           {username.toLowerCase()}
         </Typography>
         <Typography
