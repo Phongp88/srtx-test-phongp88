@@ -6,6 +6,36 @@ import {
   SAME_GITHUB_NAME_ERROR,
 } from "../../shared/const";
 
+const fetchAllPossibleFollowersFromUser = async (user) => {
+  let page = 1;
+  let allFollowers = [];
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    try {
+      const res = await fetch(
+        `https://api.github.com/users/${user}/followers?page=${page}&per_page=100`
+      );
+      const followers = await res.json();
+      if (followers.length === 0) {
+        hasNextPage = false;
+      } else {
+        allFollowers = [...allFollowers, ...followers];
+        page++;
+      }
+    } catch (error) {
+      throw new Error(`Failed to retrieve followers for user ${user}`);
+    }
+  }
+
+  return allFollowers;
+};
+
+const fetchUserDetails = async (user) => {
+  const res = await fetch(`https://api.github.com/users/${user}`);
+  return await res.json();
+};
+
 export const useFetchUserFollowers = () => {
   const [firstUser, setFirstUser] = useState(null);
   const [secondUser, setSecondUser] = useState(null);
@@ -13,53 +43,53 @@ export const useFetchUserFollowers = () => {
   const [commonFollowerList, setCommonFollowerList] = useState([]);
   const [error, setError] = useState(DEFAULT_ERROR);
 
-  useEffect(() => {
-    if (firstUser && secondUser) {
-      const commonFollowers = firstUser.followers.filter((firstUserFollowers) =>
-        secondUser.followers.some(
-          (secondUserFollowers) =>
-            firstUserFollowers.login === secondUserFollowers.login
-        )
-      );
-      setCommonFollowerList(commonFollowers);
-    }
-  }, [firstUser, secondUser]);
+  const handleRetrySearch = () => {
+    setFirstUser(null);
+    setSecondUser(null);
+  };
 
-  const handleGetGithubUser = (githubUser) => {
-    if (githubUser === "") {
-      setError(EMPTY_FIELD_ERROR);
-      return;
+  const handleGetGithubUser = async (user) => {
+    const trimmedValue = user.trim();
+    if (trimmedValue.length === 0) {
+      return setError(EMPTY_FIELD_ERROR);
     }
 
-    if (
-      firstUser &&
-      firstUser.username.toLowerCase() === githubUser.toLowerCase()
-    ) {
-      setError(SAME_GITHUB_NAME_ERROR);
-      return;
+    if (firstUser && firstUser.login.toLowerCase() === user.toLowerCase()) {
+      return setError(SAME_GITHUB_NAME_ERROR);
     }
-    try {
-      setLoading(true);
-      fetch(`https://api.github.com/users/${githubUser}/followers`).then(
-        async (res) => {
-          const data = await res.json();
-          if (firstUser === null) {
-            setFirstUser({
-              username: githubUser,
-              followers: data,
-            });
-          } else {
-            setSecondUser({ username: githubUser, followers: data });
-          }
-        }
-      );
-    } catch (errorMessage) {
-      throw new Error({ message: errorMessage });
-    } finally {
-      setLoading(false);
-      if (error.isError) {
-        setError(DEFAULT_ERROR);
+
+    if (firstUser) {
+      setSecondUser({ login: user });
+      try {
+        setLoading(true);
+        const [
+          firstUserData,
+          secondUserData,
+          firstUserFollowers,
+          secondUserFollowers,
+        ] = await Promise.all([
+          fetchUserDetails(firstUser.login),
+          fetchUserDetails(user),
+          fetchAllPossibleFollowersFromUser(firstUser.login),
+          fetchAllPossibleFollowersFromUser(user),
+        ]);
+
+        const commonFollowers = firstUserFollowers.filter((firstFollowers) =>
+          secondUserFollowers.some(
+            (secondFollowers) => firstFollowers.login === secondFollowers.login
+          )
+        );
+        setFirstUser(firstUserData);
+        setSecondUser(secondUserData);
+        setCommonFollowerList(commonFollowers);
+      } catch (errorMessage) {
+        setError({ isError: true, message: errorMessage });
+        handleRetrySearch();
+      } finally {
+        setLoading(false);
       }
+    } else {
+      setFirstUser({ login: user });
     }
   };
 
@@ -68,6 +98,7 @@ export const useFetchUserFollowers = () => {
     secondUser,
     commonFollowerList,
     handleGetGithubUser,
+    handleRetrySearch,
     loading,
     error,
   };
