@@ -1,11 +1,16 @@
 import { useState } from "react";
 
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 import GithubForm from "../GithubFindForm/GithubForm";
 import GithubAvatar from "../GithubAvatar/GithubAvatar";
 import GithubFollowersList from "../GithubFollowersList/GithubFollowersList";
-import { AvatarContainer, FollowersContainer } from "./GithubFollowers.styles";
+import {
+  AvatarContainer,
+  FollowersContainer,
+  CenterContainer,
+} from "./GithubFollowers.styles";
 import { useFetchUserFollowers } from "./hooks/useFetchUserFollowers";
 import { STRINGS } from "../shared/strings";
 
@@ -18,6 +23,7 @@ const GithubFollowers = () => {
     firstUser,
     secondUser,
     commonFollowerList,
+    handleRetrySearch,
     error,
   } = useFetchUserFollowers();
 
@@ -35,7 +41,7 @@ const GithubFollowers = () => {
 
   return (
     <>
-      {(!firstUser || !secondUser) && (
+      {!firstUser || !secondUser ? (
         <GithubForm
           gitUsername={gitUsername}
           setGitUsername={setGitUsername}
@@ -43,6 +49,12 @@ const GithubFollowers = () => {
           error={error}
           githubInputText={githubInputText}
         />
+      ) : (
+        <CenterContainer>
+          <Button variant="contained" onClick={() => handleRetrySearch()}>
+            Search Again
+          </Button>
+        </CenterContainer>
       )}
       {firstUser && secondUser && (
         <FollowersContainer>

@@ -12,3 +12,8 @@ export const FollowersContainer = styled.div`
   justify-content: center;
   text-align: center;
 `;
+
+export const CenterContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
