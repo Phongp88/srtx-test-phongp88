@@ -16,38 +16,36 @@ import { STRINGS } from "../shared/strings";
 
 const GithubFollowers = () => {
   const [firstUser, setFirstUser] = useState(null);
-  const [secondUser, setSecondUser] = useState(null);
   const {
-    firstUserData,
-    secondUserData,
-    loading,
+    data: { firstUserData, secondUserData, error, commonFollowersList },
     handleGetGithubUser,
-    commonFollowerList,
     resetSearch,
-    error,
+    loading,
   } = useFetchUserFollowers();
 
   const githubInputText = firstUser ? STRINGS.SECOND_USER : STRINGS.FIRST_USER;
 
-  if (loading) {
-    return <>{STRINGS.LOADING}</>;
-  }
-
   const setUserProps = {
     firstUser,
     setFirstUser,
-    setSecondUser,
   };
 
   const handleRetrySearch = () => {
     resetSearch();
     setFirstUser(null);
-    setSecondUser(null);
   };
+
+  const displaySearchUsers = !firstUserData || !secondUserData;
+
+  const displayUserAvatars = firstUserData && secondUserData;
+
+  if (loading) {
+    return <p>{STRINGS.LOADING}</p>;
+  }
 
   return (
     <>
-      {!firstUser || !secondUser ? (
+      {displaySearchUsers ? (
         <GithubForm
           handleGetGithubUser={handleGetGithubUser}
           error={error}
@@ -62,18 +60,18 @@ const GithubFollowers = () => {
           </Button>
         </CenterContainer>
       )}
-      {firstUserData && secondUserData && (
+      {displayUserAvatars && (
         <FollowersContainer>
           <AvatarContainer>
             <GithubAvatar user={firstUserData} />
             <GithubAvatar user={secondUserData} />
           </AvatarContainer>
           <Typography>
-            {STRINGS.BOTH_USERS} {commonFollowerList.length}{" "}
+            {STRINGS.BOTH_USERS} {commonFollowersList.length}{" "}
             {STRINGS.COMMON_FOLLOWERS}
           </Typography>
-          {commonFollowerList.length > 0 && (
-            <GithubFollowersList followers={commonFollowerList} />
+          {commonFollowersList.length > 0 && (
+            <GithubFollowersList followers={commonFollowersList} />
           )}
         </FollowersContainer>
       )}

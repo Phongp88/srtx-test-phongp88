@@ -13,6 +13,10 @@ import {
   SAME_GITHUB_NAME_ERROR,
 } from "../shared/const";
 
+const validateUser = (firstUser, secondUser) => {
+  return firstUser.toLowerCase() === secondUser.toLowerCase();
+};
+
 const GithubForm = ({
   handleGetGithubUser,
   error,
@@ -20,46 +24,44 @@ const GithubForm = ({
   setUserProps,
   handleRetrySearch,
 }) => {
-  const [gitUsername, setGitUsername] = useState("");
   const [inputError, setInputError] = useState({ isError: false, message: "" });
 
-  const { firstUser, setFirstUser, setSecondUser } = setUserProps;
+  const { firstUser, setFirstUser } = setUserProps;
 
   const handleFollowerSearch = (e) => {
     e.preventDefault();
-    if (gitUsername === "") {
+
+    const gitUsername = e.target.githubusername.value.trim();
+    if (gitUsername.length === 0) {
       return setInputError(EMPTY_FIELD_ERROR);
     }
 
-    if (!firstUser) {
-      setFirstUser(gitUsername);
-    } else {
-      if (firstUser && firstUser.toLowerCase() === gitUsername.toLowerCase()) {
+    if (firstUser) {
+      if (validateUser(firstUser, gitUsername)) {
         return setInputError(SAME_GITHUB_NAME_ERROR);
       }
-      setSecondUser(gitUsername);
       handleGetGithubUser({
         firstUser,
         secondUser: gitUsername,
         handleRetrySearch,
       });
+    } else {
+      setFirstUser(gitUsername);
     }
-
-    setGitUsername("");
     if (inputError.isError) {
       setInputError(DEFAULT_ERROR);
     }
+    e.target.githubusername.value = "";
   };
 
   return (
-    <GitSearchForm onSubmit={handleFollowerSearch}>
+    <GitSearchForm onSubmit={handleFollowerSearch} name="searchGithubUsers">
       <GithubSearchField
         id="outlined-basic"
+        name="githubusername"
         label={githubInputText}
         variant="outlined"
-        value={gitUsername}
-        onChange={(e) => setGitUsername(e.target.value)}
-        error={error.isError | inputError.isError}
+        error={error.isError || inputError.isError}
         helperText={
           error.isError
             ? error.message
