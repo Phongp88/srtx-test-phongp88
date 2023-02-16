@@ -6,4 +6,6 @@ export const STRINGS = {
   SEARCH_AGAIN: "Search Again",
   LOADING: "Loading...",
   SEARCH: "Search",
+  EMPTY_FIELD_ERROR: "Field must not be empty",
+  SAME_USER_ERROR: "Github user must not be the same",
 };

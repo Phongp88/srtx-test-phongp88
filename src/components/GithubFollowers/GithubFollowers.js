@@ -15,23 +15,17 @@ import { useFetchUserFollowers } from "./hooks/useFetchUserFollowers";
 import { STRINGS } from "../shared/strings";
 
 const GithubFollowers = () => {
-  const [gitUsername, setGitUsername] = useState("");
-
+  const [firstUser, setFirstUser] = useState(null);
+  const [secondUser, setSecondUser] = useState(null);
   const {
+    firstUserData,
+    secondUserData,
     loading,
     handleGetGithubUser,
-    firstUser,
-    secondUser,
     commonFollowerList,
-    handleRetrySearch,
+    resetSearch,
     error,
   } = useFetchUserFollowers();
-
-  const handleFollowerSearch = (e) => {
-    e.preventDefault();
-    handleGetGithubUser(gitUsername);
-    setGitUsername("");
-  };
 
   const githubInputText = firstUser ? STRINGS.SECOND_USER : STRINGS.FIRST_USER;
 
@@ -39,15 +33,27 @@ const GithubFollowers = () => {
     return <>{STRINGS.LOADING}</>;
   }
 
+  const setUserProps = {
+    firstUser,
+    setFirstUser,
+    setSecondUser,
+  };
+
+  const handleRetrySearch = () => {
+    resetSearch();
+    setFirstUser(null);
+    setSecondUser(null);
+  };
+
   return (
     <>
       {!firstUser || !secondUser ? (
         <GithubForm
-          gitUsername={gitUsername}
-          setGitUsername={setGitUsername}
-          handleFollowerSearch={handleFollowerSearch}
+          handleGetGithubUser={handleGetGithubUser}
           error={error}
           githubInputText={githubInputText}
+          setUserProps={setUserProps}
+          handleRetrySearch={handleRetrySearch}
         />
       ) : (
         <CenterContainer>
@@ -56,11 +62,11 @@ const GithubFollowers = () => {
           </Button>
         </CenterContainer>
       )}
-      {firstUser && secondUser && (
+      {firstUserData && secondUserData && (
         <FollowersContainer>
           <AvatarContainer>
-            <GithubAvatar user={firstUser} />
-            <GithubAvatar user={secondUser} />
+            <GithubAvatar user={firstUserData} />
+            <GithubAvatar user={secondUserData} />
           </AvatarContainer>
           <Typography>
             {STRINGS.BOTH_USERS} {commonFollowerList.length}{" "}

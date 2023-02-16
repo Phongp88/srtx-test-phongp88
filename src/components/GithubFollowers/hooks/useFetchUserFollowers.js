@@ -1,17 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-import {
-  DEFAULT_ERROR,
-  EMPTY_FIELD_ERROR,
-  SAME_GITHUB_NAME_ERROR,
-} from "../../shared/const";
-
+import { DEFAULT_ERROR } from "../../shared/const";
 export const useFetchUserFollowers = () => {
-  const [firstUser, setFirstUser] = useState(null);
-  const [secondUser, setSecondUser] = useState(null);
+  const [firstUserData, setFirstUserData] = useState(null);
+  const [secondUserData, setSecondUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [commonFollowerList, setCommonFollowerList] = useState([]);
   const [error, setError] = useState(DEFAULT_ERROR);
+
+  const resetSearch = () => {
+    setFirstUserData(null);
+    setSecondUserData(null);
+    setCommonFollowerList([]);
+    setError(DEFAULT_ERROR);
+  };
 
   const fetchAllPossibleFollowersFromUser = async (user) => {
     let page = 1;
@@ -31,7 +33,6 @@ export const useFetchUserFollowers = () => {
           page++;
         }
       } catch (error) {
-        handleRetrySearch();
         const errorMessage = `Failed to retrieve followers for user ${user}, please try again`;
         setError({ isError: true, message: errorMessage });
         throw new Error(errorMessage);
@@ -46,23 +47,15 @@ export const useFetchUserFollowers = () => {
     return await res.json();
   };
 
-  const handleRetrySearch = () => {
-    setFirstUser(null);
-    setSecondUser(null);
-  };
-
-  const handleGetGithubUser = async (user) => {
-    const trimmedValue = user.trim();
-    if (trimmedValue.length === 0) {
-      return setError(EMPTY_FIELD_ERROR);
+  const handleGetGithubUser = async ({
+    firstUser,
+    secondUser,
+    handleRetrySearch,
+  }) => {
+    if (error.isError) {
+      setError(DEFAULT_ERROR);
     }
-
-    if (firstUser && firstUser.login.toLowerCase() === user.toLowerCase()) {
-      return setError(SAME_GITHUB_NAME_ERROR);
-    }
-
-    if (firstUser) {
-      setSecondUser({ login: user });
+    if (firstUser && secondUser) {
       try {
         setLoading(true);
         const [
@@ -71,10 +64,10 @@ export const useFetchUserFollowers = () => {
           firstUserFollowers,
           secondUserFollowers,
         ] = await Promise.all([
-          fetchUserDetails(firstUser.login),
-          fetchUserDetails(user),
-          fetchAllPossibleFollowersFromUser(firstUser.login),
-          fetchAllPossibleFollowersFromUser(user),
+          fetchUserDetails(firstUser),
+          fetchUserDetails(secondUser),
+          fetchAllPossibleFollowersFromUser(firstUser),
+          fetchAllPossibleFollowersFromUser(secondUser),
         ]);
 
         const commonFollowers = firstUserFollowers.filter((firstFollowers) =>
@@ -82,8 +75,8 @@ export const useFetchUserFollowers = () => {
             (secondFollowers) => firstFollowers.login === secondFollowers.login
           )
         );
-        setFirstUser(firstUserData);
-        setSecondUser(secondUserData);
+        setFirstUserData(firstUserData);
+        setSecondUserData(secondUserData);
         setCommonFollowerList(commonFollowers);
       } catch (errorMessage) {
         setError({
@@ -94,20 +87,15 @@ export const useFetchUserFollowers = () => {
       } finally {
         setLoading(false);
       }
-    } else {
-      setFirstUser({ login: user });
-      if (error.isError) {
-        setError(DEFAULT_ERROR);
-      }
     }
   };
 
   return {
-    firstUser,
-    secondUser,
+    firstUserData,
+    secondUserData,
     commonFollowerList,
     handleGetGithubUser,
-    handleRetrySearch,
+    resetSearch,
     loading,
     error,
   };
