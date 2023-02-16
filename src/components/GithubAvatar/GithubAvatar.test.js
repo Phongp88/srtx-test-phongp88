@@ -8,7 +8,7 @@ const TEST_USER = { login: "testuser", avatar_url: "testURL" };
 
 const renderComponent = ({ user = {} }) => render(<GithubAvatar user={user} />);
 
-describe("GithubForm component", () => {
+describe("GithubAvatar component", () => {
   it("Should render the form component with correct username", () => {
     renderComponent({ user: TEST_USER });
 
